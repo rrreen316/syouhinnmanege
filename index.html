@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>リピ買いノート</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">買</div>
+      <div>
+        <div class="brand-title">リピ買いノート</div>
+        <div class="brand-sub">同じもの、迷わず買える。</div>
+      </div>
+    </div>
+    <div class="genre-list scroll" id="genreList"></div>
+    <div class="sidebar-footer" id="sidebarFooter"></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8478" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" placeholder="商品名で検索" />
+      </div>
+      <select id="storeSelect" class="store-select">
+        <option value="all">すべての店舗</option>
+      </select>
+      <button class="stamp-btn" id="openAddBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        記録する
+      </button>
+    </div>
+
+    <div id="emptyState" class="empty" style="display:none;">
+      <div class="empty-mark">—</div>
+      <div class="empty-title" id="emptyTitle"></div>
+      <div class="empty-text" id="emptyText"></div>
+      <button class="stamp-btn" id="emptyAddBtn" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        最初のアイテムを記録
+      </button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+
+<!-- Item modal -->
+<div class="overlay hidden" id="itemOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="itemModalTitle">新しく記録する</div>
+      <button class="close-btn" id="closeItemModal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body scroll">
+      <div class="photo-upload-row">
+        <button class="photo-preview" id="photoPreviewBtn">
+          <div class="photo-placeholder" id="photoPreviewInner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B3AC9C" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+        </button>
+        <div>
+          <button class="secondary-btn" id="choosePhotoBtn">写真を選ぶ</button>
+          <button class="secondary-btn" id="removePhotoBtn" style="margin-left:8px; color:var(--accent); display:none;">削除</button>
+          <input type="file" accept="image/*" id="photoInput" style="display:none;" />
+        </div>
+      </div>
+
+      <label class="field-label">商品名</label>
+      <input class="field-input" id="nameInput" placeholder="例）〇〇の洗顔フォーム" />
+
+      <label class="field-label">ジャンル</label>
+      <div class="genre-pick-row" id="genrePickRow"></div>
+
+      <div class="row2">
+        <div>
+          <label class="field-label">値段（円）</label>
+          <input class="field-input" type="number" id="priceInput" placeholder="1200" />
+        </div>
+        <div>
+          <label class="field-label">買った店</label>
+          <input class="field-input" id="storeInput" placeholder="ドラッグストアA" />
+        </div>
+      </div>
+
+      <label class="field-label">最後に買った日</label>
+      <input class="field-input" type="date" id="dateInput" />
+
+      <label class="field-label">メモ（任意）</label>
+      <textarea class="field-input" id="noteInput" style="min-height:60px; resize:vertical;" placeholder="サイズや色などのメモ"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-btn" id="cancelItemBtn">キャンセル</button>
+      <button class="stamp-btn" id="saveItemBtn">登録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Genre modal -->
+<div class="overlay hidden" id="genreOverlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">ジャンルを編集</div>
+      <button class="close-btn" id="closeGenreModal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="genreEditList"></div>
+      <div style="height:1px; background:var(--border-soft); margin:12px 0;"></div>
+      <label class="field-label">新しいジャンル名</label>
+      <input class="field-input" id="newGenreName" placeholder="例）掃除用" />
+      <div class="swatch-row" id="swatchRow"></div>
+      <button class="stamp-btn" id="addGenreBtn" style="width:100%; margin-top:12px; justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        追加する
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
