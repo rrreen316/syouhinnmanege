@@ -51,22 +51,30 @@
     });
   }
 
-  async function loadData(){
+  const STORAGE_KEY = 'repeat-buy-note-data';
+
+  function loadData(){
     try{
-      const res = await window.storage.get('app-data');
-      if(res && res.value){
-        const parsed = JSON.parse(res.value);
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
         genres = (parsed.genres && parsed.genres.length) ? parsed.genres : DEFAULT_GENRES.slice();
         items = parsed.items || [];
       }
-    }catch(e){ /* no data yet */ }
+    }catch(e){
+      console.error('load failed', e);
+      showToast('保存データの読み込みに失敗しました');
+    }
     render();
   }
 
-  async function saveData(){
+  function saveData(){
     try{
-      await window.storage.set('app-data', JSON.stringify({genres, items}));
-    }catch(e){ console.error('save failed', e); }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({genres, items}));
+    }catch(e){
+      console.error('save failed', e);
+      showToast('保存に失敗しました（容量オーバーの可能性があります）');
+    }
   }
 
   function showToast(msg){
